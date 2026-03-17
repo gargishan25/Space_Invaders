@@ -7,13 +7,18 @@ background = pygame.transform.scale(background,(700,700))
 pygame.display.set_caption("Space Invaders")
 icon = pygame.image.load("ufo.jpg")
 pygame.display.set_icon(icon)
+
+
 class Player(pygame.sprite.Sprite):
-    def __init__(self):
+    def __init__(self,sprite_img,x,y):
+        self.x = x
+        self.y = y
         super().__init__()
-        self.player_sprite = pygame.image.load("player.png")
-        self.player_sprite = pygame.transform.scale(self.player_sprite,(100,100))
+        self.sprite = pygame.transform.scale(sprite_img,(100,100))
     def create_player(self):
-        screen.blit(self.player_sprite,(250,600))
+        screen.blit(self.sprite,(self.x,self.y))
+
+
 class Enemy(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
@@ -27,19 +32,70 @@ class Enemy(pygame.sprite.Sprite):
     def move(self):
         while True:
             self.enemy_sprite.x -= self.speed
+class Bullet():
+    def __init__(self,bullet_img, x,y):
+        self.x = x
+        self.y = y
+        # self.bullet_img = bullet_img
+        scale_size = (50,50)
+        print(scale_size)
+        self.bullet_img = pygame.transform.scale(bullet_img, scale_size)
 
-player = Player()
+
+pspeed = 10
+player_x = 250
+player_y = 600
+bullet_state = "rest"
+player_sprite = pygame.image.load("player.png")
+player = Player(player_sprite,player_x,player_y)
+# screen.blit(player.sprite,(player_x,player_y))
+bullet_img = pygame.image.load("bullet.png")
+# player.create_player()
 enemy_list = []
+# enemy = Enemy()
 for i in range(5):
-    enemy_list.append(Enemy())
+    enemy = Enemy()
+    enemy_list.append(enemy)
+
+bullet_list = []
 running = True
 while running:
     for event in pygame.event.get():
+        # print("events:", pygame.event.get(), running)
         if event.type == pygame.QUIT:
             running = False
+            
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_LEFT:
+                player_x-= pspeed
+            if event.key == pygame.K_RIGHT:
+                player_x +=pspeed
+            if event.key == pygame.K_SPACE:
+                if len(bullet_list) == 0:
+                    bullet_list.append("Bullet")
+                    bullet_state = "fire"
+                    bullet_x = player_x+25
+                    bullet_y = player_y-25
+                
+   
     screen.blit(background,(0,0))
-    player.create_player()
+    screen.blit(player.sprite,(player_x,player_y))
+    if bullet_state=="fire":
+        bullet = Bullet(bullet_img, player_x,player_y)
+
+        if bullet_y>100:
+            print(bullet_y)
+            pygame.time.delay(20)
+            bullet_y -=5
+            screen.blit(bullet.bullet_img,(bullet_x,bullet_y))
+        else:
+            bullet_state = "rest"
+            bullet_list.pop(0)
     for enemy in enemy_list:
         enemy.create_enemy()
-    pygame.display.update()
+
+
+    pygame.display.flip()
+
+
 pygame.quit()
