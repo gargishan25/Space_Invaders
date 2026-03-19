@@ -31,14 +31,13 @@ class Enemy(pygame.sprite.Sprite):
         screen.blit(self.enemy_sprite,(self.x,self.y))
     def move(self):
         while True:
-            self.enemy_sprite.x -= self.speed
+            self.x -= self.speed
 class Bullet():
     def __init__(self,bullet_img, x,y):
         self.x = x
         self.y = y
         # self.bullet_img = bullet_img
         scale_size = (50,50)
-        print(scale_size)
         self.bullet_img = pygame.transform.scale(bullet_img, scale_size)
 
 
@@ -76,23 +75,37 @@ while running:
                     bullet_state = "fire"
                     bullet_x = player_x+25
                     bullet_y = player_y-25
-                
-   
+
     screen.blit(background,(0,0))
     screen.blit(player.sprite,(player_x,player_y))
     if bullet_state=="fire":
         bullet = Bullet(bullet_img, player_x,player_y)
-
         if bullet_y>100:
-            print(bullet_y)
             pygame.time.delay(20)
             bullet_y -=5
             screen.blit(bullet.bullet_img,(bullet_x,bullet_y))
+            for enemy in enemy_list:
+                print(enemy.x, enemy.y,bullet_x, bullet_y)
+                if bullet_x <= enemy.x+20 and bullet_x >= enemy.x-20 and bullet_y == enemy.y:
+                    print("inside")
+                    bullet_y == 5000000
+                    enemy_list.remove(enemy)                    
         else:
             bullet_state = "rest"
             bullet_list.pop(0)
+    # if bullet_x == enemy.x and bullet_y == enemy.y:
+    #     bullet_y == 5000000
+    #     enemy.y == 1000000
     for enemy in enemy_list:
         enemy.create_enemy()
+        enemy.move()
+
+    if len(enemy_list) == 0:
+        font = pygame.font.SysFont("Arial",70)
+        screen.blit((font.render("GAME OVER!", True, (255,255,255))), (150,250))
+        pygame.time.delay(1000)
+        running = False
+
 
 
     pygame.display.flip()
