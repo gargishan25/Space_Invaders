@@ -94,7 +94,7 @@ while running:
                 if bullet_x <= enemy.x+25 and bullet_x >= enemy.x-25 and bullet_y <= enemy.y:
                     print("inside")
                     enemy_list.remove(enemy)                   
-                    score+=0
+                    score+=100
         else:
             bullet_state = "rest"
             bullet_list.pop(0)
