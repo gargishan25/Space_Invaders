@@ -26,12 +26,16 @@ class Enemy(pygame.sprite.Sprite):
         self.enemy_sprite = pygame.transform.scale(self.enemy_sprite,(50,50))
         self.x = random.randint(100,600)
         self.y = 100
-        self.speed = random.randint(1,10)
+        self.speed = random.randint(1,5)
     def create_enemy(self):
         screen.blit(self.enemy_sprite,(self.x,self.y))
     def move(self):
-        while True:
-            self.x -= self.speed
+        self.x -= self.speed
+        if self.x <=50 or self.x>=650:
+            self.speed*=-1
+        pygame.time.delay(5)
+
+
 class Bullet():
     def __init__(self,bullet_img, x,y):
         self.x = x
@@ -41,17 +45,15 @@ class Bullet():
         self.bullet_img = pygame.transform.scale(bullet_img, scale_size)
 
 
-pspeed = 10
+pspeed = 30
 player_x = 250
 player_y = 600
 bullet_state = "rest"
 player_sprite = pygame.image.load("player.png")
 player = Player(player_sprite,player_x,player_y)
-# screen.blit(player.sprite,(player_x,player_y))
 bullet_img = pygame.image.load("bullet.png")
-# player.create_player()
 enemy_list = []
-# enemy = Enemy()
+score = 0
 for i in range(5):
     enemy = Enemy()
     enemy_list.append(enemy)
@@ -60,15 +62,19 @@ bullet_list = []
 running = True
 while running:
     for event in pygame.event.get():
-        # print("events:", pygame.event.get(), running)
         if event.type == pygame.QUIT:
             running = False
             
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_LEFT:
-                player_x-= pspeed
+                if player_x >=20:
+                    player_x-= pspeed
+
+
             if event.key == pygame.K_RIGHT:
-                player_x +=pspeed
+                if player_x <=600:
+                    player_x+= pspeed
+
             if event.key == pygame.K_SPACE:
                 if len(bullet_list) == 0:
                     bullet_list.append("Bullet")
@@ -81,21 +87,17 @@ while running:
     if bullet_state=="fire":
         bullet = Bullet(bullet_img, player_x,player_y)
         if bullet_y>100:
-            pygame.time.delay(20)
-            bullet_y -=5
+            bullet_y -=10
             screen.blit(bullet.bullet_img,(bullet_x,bullet_y))
             for enemy in enemy_list:
                 print(enemy.x, enemy.y,bullet_x, bullet_y)
-                if bullet_x <= enemy.x+20 and bullet_x >= enemy.x-20 and bullet_y == enemy.y:
+                if bullet_x <= enemy.x+25 and bullet_x >= enemy.x-25 and bullet_y <= enemy.y:
                     print("inside")
-                    bullet_y == 5000000
-                    enemy_list.remove(enemy)                    
+                    enemy_list.remove(enemy)                   
+                    score+=0
         else:
             bullet_state = "rest"
             bullet_list.pop(0)
-    # if bullet_x == enemy.x and bullet_y == enemy.y:
-    #     bullet_y == 5000000
-    #     enemy.y == 1000000
     for enemy in enemy_list:
         enemy.create_enemy()
         enemy.move()
@@ -105,9 +107,11 @@ while running:
         screen.blit((font.render("GAME OVER!", True, (255,255,255))), (150,250))
         pygame.time.delay(1000)
         running = False
+        
 
 
-
+    score_font = pygame.font.SysFont("Arial",30)
+    screen.blit((score_font.render(f"Score: {score}", True, (0,200,0))), (50,20))
     pygame.display.flip()
 
 
